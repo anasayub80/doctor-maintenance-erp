@@ -1,0 +1,26 @@
+{
+  "name": "doctor-maintenance-erp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc -b && vite build",
+    "check": "tsc -b",
+    "test": "node --experimental-strip-types --test tests/*.test.ts",
+    "test:render": "mkdir -p .sites-runtime && esbuild tests/render-smoke.tsx --bundle --platform=node --format=cjs --outfile=.sites-runtime/render-smoke.cjs && node .sites-runtime/render-smoke.cjs"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "lucide-react": "^0.468.0",
+    "@fontsource/inter": "5.3.0",
+    "@fontsource/manrope": "5.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  }
+}
