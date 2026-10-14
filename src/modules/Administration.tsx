@@ -373,10 +373,12 @@ export function Settings() {
               }
               label="Save defaults"
             />
+            <GoServices />
             <Info>
-              New quotations use these defaults. Issued documents keep their
-              saved terms and pricing. Each payment schedule remains editable in
-              the quotation studio.
+              Service-specific conditions are managed in Services & Rates →
+              Quotation terms. New quotations use these defaults. Issued
+              documents keep their saved terms and pricing. Each payment
+              schedule remains editable in the quotation studio.
             </Info>
           </div>
         </Panel>
@@ -533,7 +535,7 @@ function GoServices() {
   const { go } = useApp();
   return (
     <Btn onClick={() => go("Services & Rates")}>
-      Open service catalog
+      Manage services & quotation terms
       <ArrowUpRight size={15} />
     </Btn>
   );

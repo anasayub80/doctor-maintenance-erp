@@ -1,3 +1,4 @@
+import { selectedTerms } from "../terms";
 import {
   type Quote,
   type Invoice,
@@ -236,6 +237,13 @@ export function DocumentPreview({
       {(quote || invoice) && (
         <section className="doc-terms">
           <label>TERMS & CONDITIONS</label>
+          {quote && selectedTerms(quote).length > 0 && (
+            <ol className="doc-condition-list">
+              {selectedTerms(quote).map((term, index) => (
+                <li key={index}>{term}</li>
+              ))}
+            </ol>
+          )}
           <p>{quote?.terms || invoice?.notes || s.settings.terms}</p>
           {quote?.exclusions && (
             <>

@@ -1,3 +1,4 @@
+import { snapshotTerms, initializeDraftTerms } from "../terms";
 import { useEffect, useState } from "react";
 import {
   Plus,
@@ -153,7 +154,12 @@ export function Quotations() {
 }
 function QuoteStudio({ original }: { original: Quote }) {
   const { state: s, save, mutate, confirm, go, toast } = useApp();
-  const [q, setQ] = useState(structuredClone(original)),
+  const [q, setQ] = useState(() =>
+      initializeDraftTerms(
+        original,
+        s.services.find((v) => v.id === original.serviceId)!,
+      ),
+    ),
     [section, setSection] = useState("Scope & pricing"),
     [mobileView, setMobileView] = useState("Edit"),
     [dirty, setDirty] = useState(false);
@@ -445,7 +451,15 @@ function QuoteStudio({ original }: { original: Quote }) {
                     <span>Service</span>
                     <select
                       value={q.serviceId}
-                      onChange={(e) => update({ serviceId: e.target.value })}
+                      onChange={(e) => {
+                        const service = s.services.find(
+                          (v) => v.id === e.target.value,
+                        )!;
+                        update({
+                          serviceId: service.id,
+                          ...snapshotTerms(service),
+                        });
+                      }}
                     >
                       {s.services.map((sv) => (
                         <option key={sv.id} value={sv.id}>
@@ -641,8 +655,80 @@ function QuoteStudio({ original }: { original: Quote }) {
                 <p className={sum === 100 ? "success-text" : "form-error"}>
                   Allocated: {sum}% of total
                 </p>
+                <section className="quote-service-terms">
+                  <div className="terms-section-heading">
+                    <div>
+                      <span className="eyebrow">SERVICE TERMS</span>
+                      <h3>
+                        {s.services.find((v) => v.id === q.serviceId)?.name}
+                      </h3>
+                    </div>
+                    <span className="terms-version">
+                      v{q.serviceTermsVersion || 1}
+                    </span>
+                  </div>
+                  <p>
+                    Defaults from the service library. Choose what applies to
+                    this quotation.
+                  </p>
+                  {(q.serviceTerms || []).map((term, index) => (
+                    <label
+                      className={`quote-term ${term.selected ? "included" : ""}`}
+                      key={term.id}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={term.selected}
+                        onChange={(e) =>
+                          update({
+                            serviceTerms: q.serviceTerms!.map((t) =>
+                              t.id === term.id
+                                ? { ...t, selected: e.target.checked }
+                                : t,
+                            ),
+                          })
+                        }
+                      />
+                      <span>
+                        <small>
+                          CONDITION {String(index + 1).padStart(2, "0")}
+                        </small>
+                        {term.text}
+                      </span>
+                    </label>
+                  ))}
+                  {!q.serviceTerms?.length && (
+                    <Info>
+                      No saved conditions on this quotation. Apply the service’s
+                      latest defaults below.
+                    </Info>
+                  )}
+                  <div className="terms-footer">
+                    <span>
+                      {(q.serviceTerms || []).filter((t) => t.selected).length}{" "}
+                      conditions included in the client document
+                    </span>
+                    <Btn
+                      small
+                      onClick={() =>
+                        confirm(
+                          "Apply latest service terms?",
+                          "This replaces the service-term selection on this draft. Your additional terms and exclusions stay unchanged.",
+                          () =>
+                            update(
+                              snapshotTerms(
+                                s.services.find((v) => v.id === q.serviceId)!,
+                              ),
+                            ),
+                        )
+                      }
+                    >
+                      Apply latest defaults
+                    </Btn>
+                  </div>
+                </section>
                 <label className="field">
-                  <span>Payment, warranty & project terms</span>
+                  <span>Additional payment, warranty & project terms</span>
                   <textarea
                     rows={6}
                     value={q.terms}

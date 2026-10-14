@@ -1,3 +1,5 @@
+import ServiceTermsWorkspace from "./ServiceTerms";
+import { serviceTerms } from "../terms";
 import { useState } from "react";
 import {
   Plus,
@@ -1098,7 +1100,11 @@ export function Contractors() {
   );
 }
 export function Services() {
-  const { state: s, save, openCreate } = useApp();
+  const { state: s, save, openCreate, recordId, go } = useApp();
+  const [view, setView] = useState(
+    recordId ? "Quotation terms" : "Service catalog",
+  );
+  const [termsService, setTermsService] = useState(recordId || "S7");
   const [query, setQuery] = useState(""),
     [selected, setSelected] = useState<Service | null>(null);
   return (
@@ -1114,77 +1120,116 @@ export function Services() {
           </Btn>
         }
       />
-      <Info>
-        Demo rate references can be overridden by authorized staff. Changes do
-        not rewrite issued quotations.
-      </Info>
-      <div className="workspace-toolbar">
-        <span>
-          {s.services.filter((s) => s.active).length} active service categories
-        </span>
-        <label className="search-field">
-          <input
-            placeholder="Find a service…"
-            aria-label="Find service"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </label>
-      </div>
-      <div className="service-grid">
-        {s.services
-          .filter((sv) => sv.name.toLowerCase().includes(query.toLowerCase()))
-          .map((sv, i) => (
-            <article
-              className={`service-card ${!sv.active ? "inactive" : ""}`}
-              key={sv.id}
-            >
-              <div className="service-card-top">
-                <span className="service-number">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <Badge>{sv.active ? "Active" : "Inactive"}</Badge>
-              </div>
-              <h3>{sv.name}</h3>
-              <p>{sv.description}</p>
-              <div className="rate-pair">
-                <div>
-                  <label>WITH MATERIAL</label>
-                  <strong>{money(sv.rate)}</strong>
-                </div>
-                <div>
-                  <label>LABOUR ONLY</label>
-                  <strong>{money(sv.labourRate)}</strong>
-                </div>
-                <span>per {sv.unit}</span>
-              </div>
-              <div className="service-card-footer">
-                <button
-                  className="text-btn"
-                  onClick={() => openCreate("service", sv)}
+      <Tabs
+        tabs={["Service catalog", "Quotation terms"]}
+        value={view}
+        onChange={setView}
+      />
+      {view === "Quotation terms" ? (
+        <ServiceTermsWorkspace
+          serviceId={recordId || termsService}
+          onSelect={(id) => {
+            setTermsService(id);
+            go("Services & Rates", id);
+          }}
+        />
+      ) : (
+        <>
+          <Info>
+            Demo rate references can be overridden by authorized staff. Changes
+            do not rewrite issued quotations.
+          </Info>
+          <div className="workspace-toolbar">
+            <span>
+              {s.services.filter((s) => s.active).length} active service
+              categories
+            </span>
+            <label className="search-field">
+              <input
+                placeholder="Find a service…"
+                aria-label="Find service"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </label>
+          </div>
+          <div className="service-grid">
+            {s.services
+              .filter((sv) =>
+                sv.name.toLowerCase().includes(query.toLowerCase()),
+              )
+              .map((sv, i) => (
+                <article
+                  className={`service-card ${!sv.active ? "inactive" : ""}`}
+                  key={sv.id}
                 >
-                  Edit rate card
-                  <ArrowUpRight size={14} />
-                </button>
-                <button className="text-btn" onClick={() => setSelected(sv)}>
-                  History
-                </button>
-                <button
-                  className="text-btn"
-                  onClick={() =>
-                    save(
-                      "services",
-                      { ...sv, active: !sv.active },
-                      sv.active ? "Service deactivated" : "Service reactivated",
-                    )
-                  }
-                >
-                  {sv.active ? "Deactivate" : "Activate"}
-                </button>
-              </div>
-            </article>
-          ))}
-      </div>
+                  <div className="service-card-top">
+                    <span className="service-number">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <Badge>{sv.active ? "Active" : "Inactive"}</Badge>
+                  </div>
+                  <h3>{sv.name}</h3>
+                  <p>{sv.description}</p>
+                  <div className="rate-pair">
+                    <div>
+                      <label>WITH MATERIAL</label>
+                      <strong>{money(sv.rate)}</strong>
+                    </div>
+                    <div>
+                      <label>LABOUR ONLY</label>
+                      <strong>{money(sv.labourRate)}</strong>
+                    </div>
+                    <span>per {sv.unit}</span>
+                  </div>
+                  <div className="service-card-footer">
+                    <button
+                      className="text-btn"
+                      onClick={() => openCreate("service", sv)}
+                    >
+                      Edit rate card
+                      <ArrowUpRight size={14} />
+                    </button>
+                    <button
+                      className="text-btn service-terms-link"
+                      onClick={() => {
+                        setTermsService(sv.id);
+                        setView("Quotation terms");
+                        go("Services & Rates", sv.id);
+                      }}
+                    >
+                      <FileText size={13} />
+                      Terms{" "}
+                      <span>
+                        {serviceTerms(sv).filter((t) => t.enabled).length}
+                      </span>
+                    </button>
+                    <button
+                      className="text-btn"
+                      onClick={() => setSelected(sv)}
+                    >
+                      History
+                    </button>
+                    <button
+                      className="text-btn"
+                      onClick={() =>
+                        save(
+                          "services",
+                          { ...sv, active: !sv.active },
+                          sv.active
+                            ? "Service deactivated"
+                            : "Service reactivated",
+                        )
+                      }
+                    >
+                      {sv.active ? "Deactivate" : "Activate"}
+                    </button>
+                  </div>
+                </article>
+              ))}
+          </div>
+        </>
+      )}
       {selected && (
         <Drawer
           title={`${selected.name} • rate history`}

@@ -1,3 +1,5 @@
+import ServiceTermsWorkspace from "../src/modules/ServiceTerms";
+import { snapshotTerms } from "../src/terms";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import assert from "node:assert/strict";
@@ -69,4 +71,27 @@ assert(!client.includes("gross profit"));
 assert(!client.includes("Expected margin"));
 console.log(
   `${views} screen and detail renders passed; client document excludes internal costing.`,
+);
+
+const library = renderToStaticMarkup(
+  <Provider>
+    <ServiceTermsWorkspace serviceId="S7" onSelect={() => {}} />
+  </Provider>,
+);
+assert(library.includes("Save service terms"));
+assert(library.includes("Auto-include"));
+const termsQuote = {
+  ...initialState.quotes[0],
+  ...snapshotTerms(initialState.services[6]),
+};
+termsQuote.serviceTerms![0].selected = false;
+const termsDocument = renderToStaticMarkup(
+  <Provider>
+    <DocumentPreview quote={termsQuote} />
+  </Provider>,
+);
+assert(termsDocument.includes("cabinet layout"));
+assert(!termsDocument.includes(termsQuote.serviceTerms![0].text));
+console.log(
+  "Service terms workspace and selected client-document conditions passed.",
 );

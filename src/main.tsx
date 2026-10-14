@@ -1,3 +1,4 @@
+import { useScrollReveal } from "./components/Motion";
 import "@fontsource/inter/latin-400.css";
 import "@fontsource/inter/latin-500.css";
 import "@fontsource/inter/latin-600.css";
@@ -12,6 +13,7 @@ import { Provider, useApp } from "./store";
 import Shell from "./components/Shell";
 import CreateHost from "./components/CreateHost";
 import "./styles.css";
+import "./refinement.css";
 const Dashboard = lazy(() => import("./modules/Dashboard"));
 const Leads = lazy(() =>
   import("./modules/Relationships").then((m) => ({ default: m.Leads })),
@@ -113,6 +115,10 @@ class ErrorBoundary extends Component<
     );
   }
 }
+function PageMotion({ children }: { children: ReactNode }) {
+  useScrollReveal();
+  return <>{children}</>;
+}
 function App() {
   const { page } = useApp();
   const modules: Record<string, ReactNode> = {
@@ -138,7 +144,7 @@ function App() {
     <Shell>
       <div key={page} className="page-enter">
         <Suspense fallback={<Skeleton />}>
-          {modules[page] || <Dashboard />}
+          <PageMotion key={page}>{modules[page] || <Dashboard />}</PageMotion>
         </Suspense>
       </div>
       <CreateHost />

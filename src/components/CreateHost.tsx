@@ -1,3 +1,4 @@
+import { snapshotTerms } from "../terms";
 import { useEffect, useState } from "react";
 import { useApp, recordPayment } from "../store";
 import {
@@ -353,6 +354,7 @@ export default function CreateHost() {
         tax: 0,
         materials: "With material",
         terms: s.settings.terms,
+        ...snapshotTerms(s.services.find((x) => x.id === d.serviceId)!),
         exclusions: "",
         internalCost: 0,
         milestones: [

@@ -1,3 +1,4 @@
+import { useAnimatedNumber } from "./Motion";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   ArrowUpRight,
@@ -92,6 +93,11 @@ export function Heading({
 }) {
   return (
     <div className="page-heading">
+      <div className="heading-brand-accent" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
       <div>
         {eyebrow && <div className="eyebrow">{eyebrow}</div>}
         <h1>{title}</h1>
@@ -142,8 +148,10 @@ export function Metric({
   onClick?: () => void;
   dark?: boolean;
 }) {
+  const animated = useAnimatedNumber(typeof value === "number" ? value : 0);
   return (
     <button
+      aria-label={`${label}: ${typeof value === "number" ? money(value) : value}. ${hint || ""}`}
       disabled={!onClick}
       onClick={onClick}
       className={`metric ${dark ? "dark" : ""}`}
@@ -156,7 +164,7 @@ export function Metric({
         {typeof value === "number" ? (
           <>
             <small>PKR</small>
-            {compact(value)}
+            {compact(animated)}
           </>
         ) : (
           value
@@ -177,7 +185,11 @@ export function Empty({
 }) {
   return (
     <div className="empty">
-      <Inbox size={30} />
+      <img
+        className="empty-illustration"
+        src="/assets/document-care.svg"
+        alt=""
+      />
       <h3>{title}</h3>
       <p>{message}</p>
       {action}

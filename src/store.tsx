@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from "react";
 import { initialState } from "./seed";
+import { migrateDemoState } from "./terms";
 import {
   type State,
   type Page,
@@ -45,9 +46,11 @@ export function Provider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<State>(() => {
     try {
       const raw = localStorage.getItem("dm-erp-v1");
-      return raw ? JSON.parse(raw) : structuredClone(initialState);
+      return migrateDemoState(
+        raw ? JSON.parse(raw) : structuredClone(initialState),
+      );
     } catch {
-      return structuredClone(initialState);
+      return migrateDemoState(structuredClone(initialState));
     }
   });
   const parse = () => {
@@ -129,7 +132,7 @@ export function Provider({ children }: { children: ReactNode }) {
           setNotice(`Previewing ${role} permissions`);
         },
         reset: () => {
-          setState(structuredClone(initialState));
+          setState(migrateDemoState(structuredClone(initialState)));
           go("Dashboard");
           setNotice("Demonstration workspace restored");
         },

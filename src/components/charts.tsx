@@ -47,6 +47,7 @@ export function TrendChart({
         />
         <path
           d={path("revenue")}
+          className="trend-line"
           stroke="#b3925a"
           fill="none"
           strokeWidth="2.7"
@@ -54,6 +55,7 @@ export function TrendChart({
         />
         <path
           d={path("profit")}
+          className="trend-line profit-line"
           stroke="#476655"
           fill="none"
           strokeWidth="2.7"

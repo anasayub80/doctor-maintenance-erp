@@ -1,3 +1,4 @@
+import type { ServiceTerm, QuoteTerm } from "./terms.ts";
 export type Role =
   | "Owner"
   | "Finance Manager"
@@ -63,6 +64,8 @@ export interface Service {
   active: boolean;
   description: string;
   history: { date: string; rate: number }[];
+  quotationTerms?: ServiceTerm[];
+  termsVersion?: number;
 }
 export interface Contractor {
   id: string;
@@ -108,6 +111,8 @@ export interface Quote {
   terms: string;
   exclusions: string;
   internalCost: number;
+  serviceTerms?: QuoteTerm[];
+  serviceTermsVersion?: number;
   milestones: Milestone[];
 }
 export interface ChangeOrder {

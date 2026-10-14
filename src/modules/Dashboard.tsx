@@ -79,12 +79,38 @@ export default function Dashboard() {
   });
   return (
     <>
-      <Heading
-        eyebrow="EXECUTIVE OVERVIEW"
-        title="Your business, in focus."
-        description={`${active.length} projects moving forward. ${follow.length} conversations need your attention.`}
-        actions={<PeriodFilters />}
-      />
+      <div className="dashboard-hero">
+        <div className="hero-copy">
+          <Heading
+            eyebrow="EXECUTIVE OVERVIEW"
+            title="Your business, in focus."
+            description={`${active.length} projects moving forward. ${follow.length} conversations need your attention.`}
+          />
+          <div className="hero-signals">
+            <span>
+              <i />
+              {active.length} projects in motion
+            </span>
+            <button
+              onClick={() =>
+                go(
+                  s.role === "Operations Manager" ? "Jobs & Projects" : "Leads",
+                )
+              }
+            >
+              <Clock size={13} />
+              {follow.length} follow-ups to plan
+              <ArrowUpRight size={12} />
+            </button>
+          </div>
+        </div>
+        <div className="hero-illustration" aria-hidden="true">
+          <img src="/assets/property-care.svg" alt="" />
+        </div>
+        <div className="hero-controls">
+          <PeriodFilters />
+        </div>
+      </div>
       {canFinance(s) ? (
         <div className="financial-ribbon">
           <div className="ribbon-caption">

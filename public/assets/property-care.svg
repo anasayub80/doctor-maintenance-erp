@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 340" fill="none">
+<style>.property-scene{animation:float 7s ease-in-out infinite}.signal{animation:pulse 3s ease-in-out infinite}.signal.b{animation-delay:1s}.line{stroke-dasharray:4 5;animation:flow 16s linear infinite}@keyframes float{50%{transform:translateY(-5px)}}@keyframes pulse{50%{opacity:.35}}@keyframes flow{to{stroke-dashoffset:-90}}@media(prefers-reduced-motion:reduce){*{animation:none!important}}</style>
+<ellipse cx="253" cy="294" rx="155" ry="26" fill="#DBD6C9" opacity=".4"/>
+<path d="M80 265 236 337 405 251 254 183Z" fill="#EAE5D9"/>
+<path d="m80 265 156 72 169-86" stroke="#D7CFBB"/>
+<path d="m104 269 134 63M128 257l135 62M153 244l135 62M178 232l135 62M205 217l135 63M234 204l135 61M94 273l169-85M126 288l169-85M159 303l169-85M191 318l169-85" stroke="#DDD5C2" stroke-width=".7"/>
+<g class="property-scene">
+<path d="m146 246 117 57 118-58V137L267 82 146 139Z" fill="#F6F2E9"/>
+<path d="m263 195 118-58v108l-118 58Z" fill="#E5DECE"/>
+<path d="m146 139 117 56 118-58-114-55Z" fill="#FAF8F2" stroke="#D1C5AE" stroke-width="1.2"/>
+<path d="m168 135 97 47 94-46-94-45Z" fill="#D6C7A8"/>
+<path d="m170 135 95 46 93-45-94-42Z" fill="#DED1B4"/>
+<path d="m168 135 97 47v5l-97-46Z" fill="#AA9060"/><path d="m265 182 94-46v5l-94 46Z" fill="#BCA779"/>
+<path d="m156 157 103 50v9l-103-50Z" fill="#BAA271" opacity=".5"/>
+<path d="m274 206 95-47v8l-95 47Z" fill="#BAA271" opacity=".6"/>
+<path d="m158 179 30 14v47l-30-14Z" fill="#29332C"/><path d="m162 183 22 10v38l-22-10Z" fill="#84948B"/>
+<path d="m164 185 19 9v10l-19-9Z" fill="#BEC8BB"/><path d="m171 188v39m-9-26 22 10" stroke="#CFD2BA" stroke-width="1.2"/>
+<path d="m202 203 40 19v57l-40-19Z" fill="#303A2E"/><path d="m207 209 30 14v52l-30-14Z" fill="#5A6450"/><path d="m212 212 20 10v48l-20-10Z" fill="#68735B"/>
+<path d="m232 246v5" stroke="#C4AD77" stroke-width="2" stroke-linecap="round"/>
+<path d="m279 222 76-38v39l-76 37Z" fill="#26342D"/><path d="m284 224 66-32v28l-66 32Z" fill="#809187"/>
+<path d="m287 225 61-30v10l-61 30Z" fill="#B5C0B1"/><path d="m306 211v31m23-42v31" stroke="#D5D4B8" stroke-width="1.5"/>
+<path d="m198 265 46 22-21 11-46-22Z" fill="#E8E0CC" stroke="#C6B793"/><path d="m177 276 46 22v6l-46-22Z" fill="#B9A989"/>
+<path d="m244 287-21 11v6l21-11Z" fill="#D3C2A1"/>
+<path d="m313 250 34-17 15 8-34 17Z" fill="#BD9E63"/><path d="m313 250 15 8v19l-15-8Z" fill="#917644"/><path d="m328 258 34-17v19l-34 17Z" fill="#A78D58"/>
+<path d="m330 249v-25" stroke="#788369" stroke-width="2"/>
+<path d="M330 243c-17-6-14-23-2-18 3-16 17-12 12 0 19-1 18 17-10 18Z" fill="#8D9A78"/><path d="m330 236-7-7m7 8 8-9" stroke="#697C5A"/>
+<path d="m112 243 13 7 17-8-13-7Z" fill="#AA9368"/><path d="m112 243 13 7v26l-13-6Z" fill="#987F51"/><path d="m125 250 17-8v26l-17 8Z" fill="#BAA273"/>
+<path d="M127 239v-45" stroke="#6D7C5E" stroke-width="2"/><path d="M127 233c-26 0-27-24-13-27-10-19 12-29 17-14 18-14 31 6 18 15 17 15-3 31-22 26Z" fill="#92A181"/><path d="m127 227-12-14m12 8 16-10" stroke="#748764" stroke-width="1.3"/>
+<path d="m225 126 27 13 24-12-26-13Z" fill="#FAF8F0"/><path d="m225 126 27 13v6l-27-13Z" fill="#BEAB81"/><path d="m252 139 24-12v6l-24 12Z" fill="#CDBB98"/>
+<circle class="signal" cx="192" cy="160" r="5" fill="#B3925A"/><circle class="signal" cx="192" cy="160" r="12" stroke="#B3925A" opacity=".3"/>
+<circle class="signal b" cx="340" cy="185" r="5" fill="#58765D"/><circle class="signal b" cx="340" cy="185" r="12" stroke="#58765D" opacity=".3"/>
+</g>
+<path class="line" d="M192 160v-47h-79" stroke="#AC966A"/><path class="line" d="M340 185h73v-42" stroke="#829479"/>
+<rect x="52" y="87" width="103" height="42" rx="10" fill="#FFFFFF" stroke="#E5DFD1"/><circle cx="73" cy="108" r="10" fill="#F1EBDD"/><path d="m69 108 3 3 5-6" stroke="#A28A53" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><text x="89" y="105" font-family="sans-serif" font-size="7" letter-spacing=".6" fill="#7E765F">SCOPE APPROVED</text><text x="89" y="116" font-family="sans-serif" font-size="6.5" fill="#A1A08E">Ready for the next step</text>
+<rect x="356" y="109" width="105" height="43" rx="10" fill="#FFFFFF" stroke="#DDE5D8"/><circle cx="377" cy="130" r="10" fill="#EAF0E4"/><path d="M377 125v10m-5-5h10" stroke="#7E9472" stroke-width="1.4"/><text x="394" y="127" font-family="sans-serif" font-size="7" letter-spacing=".6" fill="#687962">BUILT WITH CARE</text><text x="394" y="138" font-family="sans-serif" font-size="6.5" fill="#929D86">Every detail, connected</text>
+</svg>
