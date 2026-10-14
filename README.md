@@ -58,3 +58,7 @@ Go to **Services & Rates → Quotation terms**, select a service, and manage its
 In **Quotation studio → Payments & terms**, staff can include/exclude individual conditions and add project-specific wording. **Apply latest defaults** refreshes a draft deliberately. Issued quotations preserve their saved text when the library changes. Existing browser data is migrated without resetting records.
 
 The interface includes bespoke vector property/document illustrations, animated figures and charts, viewport reveals and refined interaction states. All motion respects reduced-motion settings.
+
+## Editor and navigation layout
+
+Quotation and invoice studios use one keyboard-accessible scroll region, with their header, tabs and action footer outside it. Desktop height follows available viewport space; tablet and short screens use natural page scrolling. Sidebar collapse is available in the top bar and footer, and its preference persists independently of demo records.

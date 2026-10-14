@@ -1,3 +1,4 @@
+import Shell from "../src/components/Shell";
 import ServiceTermsWorkspace from "../src/modules/ServiceTerms";
 import { snapshotTerms } from "../src/terms";
 import React from "react";
@@ -94,4 +95,52 @@ assert(termsDocument.includes("cabinet layout"));
 assert(!termsDocument.includes(termsQuote.serviceTerms![0].text));
 console.log(
   "Service terms workspace and selected client-document conditions passed.",
+);
+
+// Regression coverage for the reported clipped editor and sidebar controls.
+(globalThis as any).location.hash = "#Quotations/QT-1050";
+const quoteWorkspace = renderToStaticMarkup(
+  <Provider>
+    <Quotations />
+  </Provider>,
+);
+assert(quoteWorkspace.includes('class="studio-scroll"'));
+assert(
+  quoteWorkspace.includes(
+    'aria-label="Quotation editor — Scope &amp; pricing"',
+  ),
+);
+assert(
+  quoteWorkspace.includes('</fieldset></div><div class="studio-editor-footer"'),
+);
+assert(quoteWorkspace.includes("editor-footer-actions"));
+(globalThis as any).location.hash = "#Invoices%20%26%20Receipts/INV-301";
+const invoiceWorkspace = renderToStaticMarkup(
+  <Provider>
+    <Invoices />
+  </Provider>,
+);
+assert(invoiceWorkspace.includes('aria-label="Invoice editor content"'));
+assert(invoiceWorkspace.includes("studio-editor-footer"));
+assert(invoiceWorkspace.includes("Record payment"));
+console.log(
+  "Both editors expose a keyboard-accessible scroll region and separate action footer.",
+);
+
+(globalThis as any).localStorage.getItem = (key: string) =>
+  key === "dm-sidebar-collapsed" ? "true" : null;
+const shell = renderToStaticMarkup(
+  <Provider>
+    <Shell>
+      <p>Workspace</p>
+    </Shell>
+  </Provider>,
+);
+assert(shell.includes('class="app collapsed"'));
+assert(shell.includes('class="icon-btn sidebar-toggle"'));
+assert(shell.includes('aria-label="Expand sidebar"'));
+assert(shell.includes('aria-expanded="false" aria-controls="app-sidebar"'));
+(globalThis as any).localStorage.getItem = () => null;
+console.log(
+  "Collapsed sidebar preference and accessible expand controls render correctly.",
 );

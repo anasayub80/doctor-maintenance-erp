@@ -79,7 +79,13 @@ export const navGroups = [
 ] as const;
 export default function Shell({ children }: { children: ReactNode }) {
   const { state: s, page, recordId, go, openCreate, setRole, toast } = useApp();
-  const [collapsed, setCollapsed] = useState(false),
+  const [collapsed, setCollapsed] = useState(() => {
+      try {
+        return localStorage.getItem("dm-sidebar-collapsed") === "true";
+      } catch {
+        return false;
+      }
+    }),
     [mobile, setMobile] = useState(false),
     [command, setCommand] = useState(false),
     [quick, setQuick] = useState(false),
@@ -87,6 +93,37 @@ export default function Shell({ children }: { children: ReactNode }) {
     [user, setUser] = useState(false),
     [read, setRead] = useState(false);
   const allowed = permissions[s.role];
+  useEffect(() => {
+    try {
+      localStorage.setItem("dm-sidebar-collapsed", String(collapsed));
+    } catch {}
+  }, [collapsed]);
+  useEffect(() => {
+    if (!mobile) return;
+    const old = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = old;
+    };
+  }, [mobile]);
+  useEffect(() => {
+    if (!quick && !notifications && !user) return;
+    const close = (e: PointerEvent) => {
+      const target = e.target as Element;
+      if (
+        target.closest(
+          ".popover,.popover-anchor,.sidebar-user,.top-avatar,.demo-banner",
+        )
+      )
+        return;
+      setQuick(false);
+      setNotifications(false);
+      setUser(false);
+    };
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
+  }, [quick, notifications, user]);
+
   useEffect(() => {
     const cb = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
@@ -119,7 +156,11 @@ export default function Shell({ children }: { children: ReactNode }) {
       {mobile && (
         <div className="mobile-backdrop" onClick={() => setMobile(false)} />
       )}
-      <aside className={`sidebar ${mobile ? "mobile-open" : ""}`}>
+      <aside
+        id="app-sidebar"
+        aria-label="Workspace navigation"
+        className={`sidebar ${mobile ? "mobile-open" : ""}`}
+      >
         <div className="brand">
           <img src="/assets/mark.svg" alt="" />
           <div>
@@ -144,7 +185,7 @@ export default function Shell({ children }: { children: ReactNode }) {
           </div>
           <ShieldCheck size={15} />
         </div>
-        <nav>
+        <nav aria-label="Primary navigation">
           {navGroups.map((group) => {
             const items = group.items.filter(([p]) => allowed.includes(p));
             return items.length ? (
@@ -155,6 +196,8 @@ export default function Shell({ children }: { children: ReactNode }) {
                     key={p}
                     className={`nav-item ${page === p ? "active" : ""}`}
                     title={p}
+                    aria-label={p}
+                    aria-current={page === p ? "page" : undefined}
                     onClick={() => {
                       go(p);
                       setMobile(false);
@@ -191,7 +234,11 @@ export default function Shell({ children }: { children: ReactNode }) {
           </button>
           <button
             className="collapse-btn"
-            onClick={() => setCollapsed(!collapsed)}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-expanded={!collapsed}
+            aria-controls="app-sidebar"
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            onClick={() => setCollapsed((c) => !c)}
           >
             {collapsed ? (
               <PanelLeftOpen size={16} />
@@ -207,6 +254,20 @@ export default function Shell({ children }: { children: ReactNode }) {
       <div className="app-body">
         <header className="topbar">
           <div className="breadcrumbs">
+            <button
+              className="icon-btn sidebar-toggle"
+              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              aria-expanded={!collapsed}
+              aria-controls="app-sidebar"
+              title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              onClick={() => setCollapsed((c) => !c)}
+            >
+              {collapsed ? (
+                <PanelLeftOpen size={19} />
+              ) : (
+                <PanelLeftClose size={19} />
+              )}
+            </button>
             <button
               className="icon-btn mobile-only"
               aria-label="Open navigation"
@@ -433,6 +494,7 @@ function CommandPalette({ close }: { close: () => void }) {
   const [query, setQuery] = useState(""),
     [selected, setSelected] = useState(0);
   const allowed = permissions[s.role];
+
   const destinations = allowed.map((p) => ({
     title: p,
     meta: "Navigate",

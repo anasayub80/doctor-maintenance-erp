@@ -1,3 +1,4 @@
+import { StudioFrame, StudioScroll } from "../components/StudioFrame";
 import { snapshotTerms, initializeDraftTerms } from "../terms";
 import { useEffect, useState } from "react";
 import {
@@ -374,7 +375,31 @@ function QuoteStudio({ original }: { original: Quote }) {
       <div
         className={`studio ${mobileView === "Preview" ? "preview-selected" : ""}`}
       >
-        <section className="studio-editor">
+        <StudioFrame
+          title="Quotation editor"
+          footer={
+            <>
+              <div className="editor-footer-summary">
+                <span>
+                  <LockKeyhole size={13} />
+                  Client copy excludes internal costs
+                </span>
+                <strong>{money(total)}</strong>
+              </div>
+              {editable && (
+                <div className="editor-footer-actions">
+                  <Btn small onClick={saveDraft}>
+                    Save draft
+                  </Btn>
+                  <Btn primary small onClick={issue}>
+                    Issue quotation
+                    <ArrowRight size={13} />
+                  </Btn>
+                </div>
+              )}
+            </>
+          }
+        >
           <div className="studio-top">
             <div>
               <span className="eyebrow">QUOTATION EDITOR</span>
@@ -394,444 +419,451 @@ function QuoteStudio({ original }: { original: Quote }) {
             value={section}
             onChange={setSection}
           />
-          <fieldset disabled={!editable} className="editor-fields">
-            {section === "Project" && (
-              <>
-                <div className="section-intro">
-                  <span>01</span>
-                  <div>
-                    <h3>Customer & project</h3>
-                    <p>Existing details, carried forward.</p>
+          <StudioScroll label={`Quotation editor — ${section}`}>
+            <fieldset
+              disabled={!editable}
+              className="editor-fields"
+              hidden={section === "Internal & history"}
+            >
+              {section === "Project" && (
+                <>
+                  <div className="section-intro">
+                    <span>01</span>
+                    <div>
+                      <h3>Customer & project</h3>
+                      <p>Existing details, carried forward.</p>
+                    </div>
                   </div>
-                </div>
-                <div className="form-grid">
-                  <label className="field span-2">
-                    <span>Customer</span>
-                    <select
-                      value={q.customerId}
-                      onChange={(e) => {
-                        const c = s.customers.find(
-                          (c) => c.id === e.target.value,
-                        )!;
-                        update({
-                          customerId: c.id,
-                          propertyId: c.properties[0]?.id || "",
-                        });
-                      }}
-                    >
-                      {s.customers.map((c) => (
-                        <option value={c.id} key={c.id}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="field span-2">
-                    <span>Property</span>
-                    <select
-                      value={q.propertyId}
-                      onChange={(e) => update({ propertyId: e.target.value })}
-                    >
-                      <option value="">To be confirmed</option>
-                      {customer?.properties.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name} · {p.address}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="field span-2">
-                    <span>Project title</span>
-                    <input
-                      value={q.title}
-                      onChange={(e) => update({ title: e.target.value })}
-                    />
-                  </label>
-                  <label className="field span-2">
-                    <span>Service</span>
-                    <select
-                      value={q.serviceId}
-                      onChange={(e) => {
-                        const service = s.services.find(
-                          (v) => v.id === e.target.value,
-                        )!;
-                        update({
-                          serviceId: service.id,
-                          ...snapshotTerms(service),
-                        });
-                      }}
-                    >
-                      {s.services.map((sv) => (
-                        <option key={sv.id} value={sv.id}>
-                          {sv.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="field">
-                    <span>Issue date</span>
-                    <input
-                      type="date"
-                      value={q.date}
-                      onChange={(e) => update({ date: e.target.value })}
-                    />
-                  </label>
-                  <label className="field">
-                    <span>Valid until</span>
-                    <input
-                      type="date"
-                      value={q.validUntil}
-                      onChange={(e) => update({ validUntil: e.target.value })}
-                    />
-                  </label>
-                </div>
-              </>
-            )}
-            {section === "Scope & pricing" && (
-              <>
-                <div className="section-intro">
-                  <span>02</span>
-                  <div>
-                    <h3>A precise scope. A fair price.</h3>
-                    <p>Rates are editable and stored with this quotation.</p>
-                  </div>
-                </div>
-                <label className="field">
-                  <span>Material arrangement</span>
-                  <select
-                    value={q.materials.split(" •")[0]}
-                    onChange={(e) => update({ materials: e.target.value })}
-                  >
-                    {[
-                      "With material",
-                      "Without material",
-                      "Partial material",
-                      "Custom arrangement",
-                    ].map((x) => (
-                      <option key={x}>{x}</option>
-                    ))}
-                  </select>
-                </label>
-                <label className="field">
-                  <span>Material specifications</span>
-                  <input
-                    value={
-                      q.materials.includes(" •")
-                        ? q.materials.split(" •").slice(1).join(" •")
-                        : ""
-                    }
-                    onChange={(e) =>
-                      update({
-                        materials:
-                          q.materials.split(" •")[0] + " •" + e.target.value,
-                      })
-                    }
-                    placeholder="e.g. Lasani ZRK sheets"
-                  />
-                </label>
-                <LineEditor
-                  items={q.items}
-                  onChange={(items) => update({ items })}
-                />
-                <div className="form-grid">
-                  <label className="field">
-                    <span>Discount (PKR)</span>
-                    <input
-                      type="number"
-                      min="0"
-                      max={itemTotal(q.items)}
-                      value={q.discount}
-                      onChange={(e) =>
-                        update({ discount: Number(e.target.value) })
-                      }
-                    />
-                  </label>
-                  <label className="field">
-                    <span>Applicable tax (%)</span>
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={q.tax}
-                      onChange={(e) => update({ tax: Number(e.target.value) })}
-                    />
-                  </label>
-                </div>
-                <div className="pricing-summary">
-                  <div>
-                    <span>Subtotal</span>
-                    <strong>{money(itemTotal(q.items))}</strong>
-                  </div>
-                  <div>
-                    <span>Discount</span>
-                    <span>−{money(q.discount)}</span>
-                  </div>
-                  <div className="total">
-                    <span>Quotation total</span>
-                    <strong>{money(total)}</strong>
-                  </div>
-                </div>
-              </>
-            )}
-            {section === "Payments & terms" && (
-              <>
-                <div className="section-intro">
-                  <span>03</span>
-                  <div>
-                    <h3>Clear expectations, from day one.</h3>
-                    <p>Milestone percentages must total 100%.</p>
-                  </div>
-                </div>
-                <div className="milestone-editor">
-                  {q.milestones.map((m, i) => (
-                    <div key={m.id}>
-                      <span className="milestone-number">0{i + 1}</span>
-                      <input
-                        aria-label={`Milestone ${i + 1} name`}
-                        value={m.name}
-                        onChange={(e) =>
+                  <div className="form-grid">
+                    <label className="field span-2">
+                      <span>Customer</span>
+                      <select
+                        value={q.customerId}
+                        onChange={(e) => {
+                          const c = s.customers.find(
+                            (c) => c.id === e.target.value,
+                          )!;
                           update({
-                            milestones: q.milestones.map((x) =>
-                              x.id === m.id
-                                ? { ...x, name: e.target.value }
-                                : x,
-                            ),
-                          })
+                            customerId: c.id,
+                            propertyId: c.properties[0]?.id || "",
+                          });
+                        }}
+                      >
+                        {s.customers.map((c) => (
+                          <option value={c.id} key={c.id}>
+                            {c.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="field span-2">
+                      <span>Property</span>
+                      <select
+                        value={q.propertyId}
+                        onChange={(e) => update({ propertyId: e.target.value })}
+                      >
+                        <option value="">To be confirmed</option>
+                        {customer?.properties.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name} · {p.address}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="field span-2">
+                      <span>Project title</span>
+                      <input
+                        value={q.title}
+                        onChange={(e) => update({ title: e.target.value })}
+                      />
+                    </label>
+                    <label className="field span-2">
+                      <span>Service</span>
+                      <select
+                        value={q.serviceId}
+                        onChange={(e) => {
+                          const service = s.services.find(
+                            (v) => v.id === e.target.value,
+                          )!;
+                          update({
+                            serviceId: service.id,
+                            ...snapshotTerms(service),
+                          });
+                        }}
+                      >
+                        {s.services.map((sv) => (
+                          <option key={sv.id} value={sv.id}>
+                            {sv.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="field">
+                      <span>Issue date</span>
+                      <input
+                        type="date"
+                        value={q.date}
+                        onChange={(e) => update({ date: e.target.value })}
+                      />
+                    </label>
+                    <label className="field">
+                      <span>Valid until</span>
+                      <input
+                        type="date"
+                        value={q.validUntil}
+                        onChange={(e) => update({ validUntil: e.target.value })}
+                      />
+                    </label>
+                  </div>
+                </>
+              )}
+              {section === "Scope & pricing" && (
+                <>
+                  <div className="section-intro">
+                    <span>02</span>
+                    <div>
+                      <h3>A precise scope. A fair price.</h3>
+                      <p>Rates are editable and stored with this quotation.</p>
+                    </div>
+                  </div>
+                  <label className="field">
+                    <span>Material arrangement</span>
+                    <select
+                      value={q.materials.split(" •")[0]}
+                      onChange={(e) => update({ materials: e.target.value })}
+                    >
+                      {[
+                        "With material",
+                        "Without material",
+                        "Partial material",
+                        "Custom arrangement",
+                      ].map((x) => (
+                        <option key={x}>{x}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="field">
+                    <span>Material specifications</span>
+                    <input
+                      value={
+                        q.materials.includes(" •")
+                          ? q.materials.split(" •").slice(1).join(" •")
+                          : ""
+                      }
+                      onChange={(e) =>
+                        update({
+                          materials:
+                            q.materials.split(" •")[0] + " •" + e.target.value,
+                        })
+                      }
+                      placeholder="e.g. Lasani ZRK sheets"
+                    />
+                  </label>
+                  <LineEditor
+                    items={q.items}
+                    onChange={(items) => update({ items })}
+                  />
+                  <div className="form-grid">
+                    <label className="field">
+                      <span>Discount (PKR)</span>
+                      <input
+                        type="number"
+                        min="0"
+                        max={itemTotal(q.items)}
+                        value={q.discount}
+                        onChange={(e) =>
+                          update({ discount: Number(e.target.value) })
                         }
                       />
+                    </label>
+                    <label className="field">
+                      <span>Applicable tax (%)</span>
                       <input
-                        aria-label={`Milestone ${i + 1} percentage`}
                         type="number"
                         min="0"
                         max="100"
-                        value={m.percentage}
+                        value={q.tax}
                         onChange={(e) =>
-                          update({
-                            milestones: q.milestones.map((x) =>
-                              x.id === m.id
-                                ? { ...x, percentage: Number(e.target.value) }
-                                : x,
-                            ),
-                          })
+                          update({ tax: Number(e.target.value) })
                         }
                       />
-                      <span>%</span>
-                      <strong>{money((total * m.percentage) / 100)}</strong>
-                      <button
-                        aria-label="Remove milestone"
+                    </label>
+                  </div>
+                  <div className="pricing-summary">
+                    <div>
+                      <span>Subtotal</span>
+                      <strong>{money(itemTotal(q.items))}</strong>
+                    </div>
+                    <div>
+                      <span>Discount</span>
+                      <span>−{money(q.discount)}</span>
+                    </div>
+                    <div className="total">
+                      <span>Quotation total</span>
+                      <strong>{money(total)}</strong>
+                    </div>
+                  </div>
+                </>
+              )}
+              {section === "Payments & terms" && (
+                <>
+                  <div className="section-intro">
+                    <span>03</span>
+                    <div>
+                      <h3>Clear expectations, from day one.</h3>
+                      <p>Milestone percentages must total 100%.</p>
+                    </div>
+                  </div>
+                  <div className="milestone-editor">
+                    {q.milestones.map((m, i) => (
+                      <div key={m.id}>
+                        <span className="milestone-number">0{i + 1}</span>
+                        <input
+                          aria-label={`Milestone ${i + 1} name`}
+                          value={m.name}
+                          onChange={(e) =>
+                            update({
+                              milestones: q.milestones.map((x) =>
+                                x.id === m.id
+                                  ? { ...x, name: e.target.value }
+                                  : x,
+                              ),
+                            })
+                          }
+                        />
+                        <input
+                          aria-label={`Milestone ${i + 1} percentage`}
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={m.percentage}
+                          onChange={(e) =>
+                            update({
+                              milestones: q.milestones.map((x) =>
+                                x.id === m.id
+                                  ? { ...x, percentage: Number(e.target.value) }
+                                  : x,
+                              ),
+                            })
+                          }
+                        />
+                        <span>%</span>
+                        <strong>{money((total * m.percentage) / 100)}</strong>
+                        <button
+                          aria-label="Remove milestone"
+                          onClick={() =>
+                            update({
+                              milestones: q.milestones.filter(
+                                (x) => x.id !== m.id,
+                              ),
+                            })
+                          }
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <Btn
+                    small
+                    onClick={() =>
+                      update({
+                        milestones: [
+                          ...q.milestones,
+                          {
+                            id: uid("M"),
+                            name: "New milestone",
+                            percentage: 0,
+                            done: false,
+                            date: q.validUntil,
+                          },
+                        ],
+                      })
+                    }
+                  >
+                    <Plus size={14} />
+                    Add milestone
+                  </Btn>
+                  <p className={sum === 100 ? "success-text" : "form-error"}>
+                    Allocated: {sum}% of total
+                  </p>
+                  <section className="quote-service-terms">
+                    <div className="terms-section-heading">
+                      <div>
+                        <span className="eyebrow">SERVICE TERMS</span>
+                        <h3>
+                          {s.services.find((v) => v.id === q.serviceId)?.name}
+                        </h3>
+                      </div>
+                      <span className="terms-version">
+                        v{q.serviceTermsVersion || 1}
+                      </span>
+                    </div>
+                    <p>
+                      Defaults from the service library. Choose what applies to
+                      this quotation.
+                    </p>
+                    {(q.serviceTerms || []).map((term, index) => (
+                      <label
+                        className={`quote-term ${term.selected ? "included" : ""}`}
+                        key={term.id}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={term.selected}
+                          onChange={(e) =>
+                            update({
+                              serviceTerms: q.serviceTerms!.map((t) =>
+                                t.id === term.id
+                                  ? { ...t, selected: e.target.checked }
+                                  : t,
+                              ),
+                            })
+                          }
+                        />
+                        <span>
+                          <small>
+                            CONDITION {String(index + 1).padStart(2, "0")}
+                          </small>
+                          {term.text}
+                        </span>
+                      </label>
+                    ))}
+                    {!q.serviceTerms?.length && (
+                      <Info>
+                        No saved conditions on this quotation. Apply the
+                        service’s latest defaults below.
+                      </Info>
+                    )}
+                    <div className="terms-footer">
+                      <span>
+                        {
+                          (q.serviceTerms || []).filter((t) => t.selected)
+                            .length
+                        }{" "}
+                        conditions included in the client document
+                      </span>
+                      <Btn
+                        small
                         onClick={() =>
-                          update({
-                            milestones: q.milestones.filter(
-                              (x) => x.id !== m.id,
-                            ),
-                          })
+                          confirm(
+                            "Apply latest service terms?",
+                            "This replaces the service-term selection on this draft. Your additional terms and exclusions stay unchanged.",
+                            () =>
+                              update(
+                                snapshotTerms(
+                                  s.services.find((v) => v.id === q.serviceId)!,
+                                ),
+                              ),
+                          )
                         }
                       >
-                        <Trash2 size={13} />
-                      </button>
+                        Apply latest defaults
+                      </Btn>
                     </div>
-                  ))}
-                </div>
-                <Btn
-                  small
-                  onClick={() =>
-                    update({
-                      milestones: [
-                        ...q.milestones,
-                        {
-                          id: uid("M"),
-                          name: "New milestone",
-                          percentage: 0,
-                          done: false,
-                          date: q.validUntil,
-                        },
-                      ],
-                    })
-                  }
-                >
-                  <Plus size={14} />
-                  Add milestone
-                </Btn>
-                <p className={sum === 100 ? "success-text" : "form-error"}>
-                  Allocated: {sum}% of total
-                </p>
-                <section className="quote-service-terms">
-                  <div className="terms-section-heading">
-                    <div>
-                      <span className="eyebrow">SERVICE TERMS</span>
-                      <h3>
-                        {s.services.find((v) => v.id === q.serviceId)?.name}
-                      </h3>
-                    </div>
-                    <span className="terms-version">
-                      v{q.serviceTermsVersion || 1}
-                    </span>
-                  </div>
-                  <p>
-                    Defaults from the service library. Choose what applies to
-                    this quotation.
-                  </p>
-                  {(q.serviceTerms || []).map((term, index) => (
-                    <label
-                      className={`quote-term ${term.selected ? "included" : ""}`}
-                      key={term.id}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={term.selected}
-                        onChange={(e) =>
-                          update({
-                            serviceTerms: q.serviceTerms!.map((t) =>
-                              t.id === term.id
-                                ? { ...t, selected: e.target.checked }
-                                : t,
-                            ),
-                          })
-                        }
-                      />
-                      <span>
-                        <small>
-                          CONDITION {String(index + 1).padStart(2, "0")}
-                        </small>
-                        {term.text}
-                      </span>
-                    </label>
-                  ))}
-                  {!q.serviceTerms?.length && (
-                    <Info>
-                      No saved conditions on this quotation. Apply the service’s
-                      latest defaults below.
-                    </Info>
-                  )}
-                  <div className="terms-footer">
-                    <span>
-                      {(q.serviceTerms || []).filter((t) => t.selected).length}{" "}
-                      conditions included in the client document
-                    </span>
-                    <Btn
-                      small
-                      onClick={() =>
-                        confirm(
-                          "Apply latest service terms?",
-                          "This replaces the service-term selection on this draft. Your additional terms and exclusions stay unchanged.",
-                          () =>
-                            update(
-                              snapshotTerms(
-                                s.services.find((v) => v.id === q.serviceId)!,
-                              ),
-                            ),
-                        )
-                      }
-                    >
-                      Apply latest defaults
-                    </Btn>
-                  </div>
-                </section>
-                <label className="field">
-                  <span>Additional payment, warranty & project terms</span>
-                  <textarea
-                    rows={6}
-                    value={q.terms}
-                    onChange={(e) => update({ terms: e.target.value })}
-                  />
-                </label>
-                <label className="field">
-                  <span>Exclusions & optional risk clauses</span>
-                  <textarea
-                    rows={4}
-                    value={q.exclusions}
-                    onChange={(e) => update({ exclusions: e.target.value })}
-                    placeholder="Only add clauses relevant to this scope."
-                  />
-                </label>
-                <Btn small onClick={() => update({ terms: s.settings.terms })}>
-                  Use company default terms
-                </Btn>
-              </>
-            )}
-          </fieldset>
-          {section === "Internal & history" && (
-            <div className="editor-fields">
-              {canCosts(s) ? (
-                <>
-                  <Info>
-                    <LockKeyhole size={15} />
-                    Internal workspace only. Never rendered on the client
-                    document.
-                  </Info>
+                  </section>
                   <label className="field">
-                    <span>Estimated direct costs (PKR)</span>
-                    <input
-                      disabled={!editable}
-                      type="number"
-                      min="0"
-                      value={q.internalCost}
-                      onChange={(e) =>
-                        update({ internalCost: Number(e.target.value) })
-                      }
+                    <span>Additional payment, warranty & project terms</span>
+                    <textarea
+                      rows={6}
+                      value={q.terms}
+                      onChange={(e) => update({ terms: e.target.value })}
                     />
                   </label>
-                  <div className="internal-summary">
-                    <div>
-                      <span>Expected gross profit</span>
-                      <strong>{money(total - q.internalCost)}</strong>
-                    </div>
-                    <div>
-                      <span>Expected margin</span>
-                      <strong className={margin < 20 ? "overdue-text" : ""}>
-                        {margin}%
-                      </strong>
-                    </div>
-                  </div>
-                  {q.internalCost > 0 && margin < 20 && (
-                    <Info tone="warning">
-                      Margin below 20%. Review scope, materials and contractor
-                      estimate before issue.
-                    </Info>
-                  )}
-                </>
-              ) : (
-                <Info>
-                  Your simulated sales role cannot access internal costs.
-                </Info>
-              )}
-              <h3 className="spaced-heading">Version history</h3>
-              {s.quotes
-                .filter(
-                  (x) =>
-                    x.id === q.id ||
-                    x.id === q.parentId ||
-                    x.parentId === q.id ||
-                    (q.parentId && x.parentId === q.parentId),
-                )
-                .map((v) => (
-                  <button
-                    className="version-row"
-                    key={v.id}
-                    onClick={() => go("Quotations", v.id)}
+                  <label className="field">
+                    <span>Exclusions & optional risk clauses</span>
+                    <textarea
+                      rows={4}
+                      value={q.exclusions}
+                      onChange={(e) => update({ exclusions: e.target.value })}
+                      placeholder="Only add clauses relevant to this scope."
+                    />
+                  </label>
+                  <Btn
+                    small
+                    onClick={() => update({ terms: s.settings.terms })}
                   >
-                    <FileText size={16} />
-                    <div>
-                      <strong>
-                        Revision {v.version} · {v.id}
-                      </strong>
-                      <small>
-                        {money(quoteTotal(v))} · {v.date}
-                      </small>
+                    Use company default terms
+                  </Btn>
+                </>
+              )}
+            </fieldset>
+            {section === "Internal & history" && (
+              <div className="editor-fields">
+                {canCosts(s) ? (
+                  <>
+                    <Info>
+                      <LockKeyhole size={15} />
+                      Internal workspace only. Never rendered on the client
+                      document.
+                    </Info>
+                    <label className="field">
+                      <span>Estimated direct costs (PKR)</span>
+                      <input
+                        disabled={!editable}
+                        type="number"
+                        min="0"
+                        value={q.internalCost}
+                        onChange={(e) =>
+                          update({ internalCost: Number(e.target.value) })
+                        }
+                      />
+                    </label>
+                    <div className="internal-summary">
+                      <div>
+                        <span>Expected gross profit</span>
+                        <strong>{money(total - q.internalCost)}</strong>
+                      </div>
+                      <div>
+                        <span>Expected margin</span>
+                        <strong className={margin < 20 ? "overdue-text" : ""}>
+                          {margin}%
+                        </strong>
+                      </div>
                     </div>
-                    <Badge>{v.status}</Badge>
-                  </button>
-                ))}
-            </div>
-          )}
-          <div className="studio-editor-footer">
-            <span>
-              <LockKeyhole size={13} />
-              Client preview excludes internal costs
-            </span>
-            <strong>{money(total)}</strong>
-          </div>
-        </section>
+                    {q.internalCost > 0 && margin < 20 && (
+                      <Info tone="warning">
+                        Margin below 20%. Review scope, materials and contractor
+                        estimate before issue.
+                      </Info>
+                    )}
+                  </>
+                ) : (
+                  <Info>
+                    Your simulated sales role cannot access internal costs.
+                  </Info>
+                )}
+                <h3 className="spaced-heading">Version history</h3>
+                {s.quotes
+                  .filter(
+                    (x) =>
+                      x.id === q.id ||
+                      x.id === q.parentId ||
+                      x.parentId === q.id ||
+                      (q.parentId && x.parentId === q.parentId),
+                  )
+                  .map((v) => (
+                    <button
+                      className="version-row"
+                      key={v.id}
+                      onClick={() => go("Quotations", v.id)}
+                    >
+                      <FileText size={16} />
+                      <div>
+                        <strong>
+                          Revision {v.version} · {v.id}
+                        </strong>
+                        <small>
+                          {money(quoteTotal(v))} · {v.date}
+                        </small>
+                      </div>
+                      <Badge>{v.status}</Badge>
+                    </button>
+                  ))}
+              </div>
+            )}
+          </StudioScroll>
+        </StudioFrame>
         <section className="studio-preview">
           <div className="preview-toolbar">
             <span>
@@ -1249,7 +1281,47 @@ function InvoiceStudio({ original }: { original: Invoice }) {
           <div
             className={`studio ${view === "Preview" ? "preview-selected" : ""}`}
           >
-            <section className="studio-editor">
+            <StudioFrame
+              title="Invoice editor"
+              footer={
+                <>
+                  <div className="editor-footer-summary">
+                    <span>Balance due</span>
+                    <strong>{money(balance(s, i))}</strong>
+                  </div>
+                  <div className="editor-footer-actions">
+                    {draft ? (
+                      <>
+                        <Btn
+                          small
+                          onClick={() =>
+                            save("invoices", i, "Invoice draft saved")
+                          }
+                        >
+                          Save draft
+                        </Btn>
+                        <Btn primary small onClick={issue}>
+                          Issue invoice
+                        </Btn>
+                      </>
+                    ) : (
+                      <Btn
+                        primary
+                        small
+                        disabled={
+                          balance(s, i) <= 0 ||
+                          i.status === "Voided" ||
+                          !canFinance(s)
+                        }
+                        onClick={() => openCreate("payment", i)}
+                      >
+                        Record payment
+                      </Btn>
+                    )}
+                  </div>
+                </>
+              }
+            >
               <div className="studio-top">
                 <div>
                   <span className="eyebrow">INVOICE EDITOR</span>
@@ -1257,82 +1329,84 @@ function InvoiceStudio({ original }: { original: Invoice }) {
                 </div>
                 <Badge>{invoiceStatus(s, i)}</Badge>
               </div>
-              <fieldset className="editor-fields" disabled={!draft}>
-                <div className="form-grid">
+              <StudioScroll label="Invoice editor content">
+                <fieldset className="editor-fields" disabled={!draft}>
+                  <div className="form-grid">
+                    <label className="field">
+                      <span>Issue date</span>
+                      <input
+                        type="date"
+                        value={i.date}
+                        onChange={(e) => setI({ ...i, date: e.target.value })}
+                      />
+                    </label>
+                    <label className="field">
+                      <span>Due date</span>
+                      <input
+                        type="date"
+                        value={i.due}
+                        onChange={(e) => setI({ ...i, due: e.target.value })}
+                      />
+                    </label>
+                  </div>
+                  <LineEditor
+                    items={i.items}
+                    onChange={(items) => setI({ ...i, items })}
+                  />
                   <label className="field">
-                    <span>Issue date</span>
+                    <span>Applicable tax (%)</span>
                     <input
-                      type="date"
-                      value={i.date}
-                      onChange={(e) => setI({ ...i, date: e.target.value })}
+                      type="number"
+                      min="0"
+                      value={i.tax}
+                      onChange={(e) =>
+                        setI({ ...i, tax: Number(e.target.value) })
+                      }
                     />
                   </label>
                   <label className="field">
-                    <span>Due date</span>
-                    <input
-                      type="date"
-                      value={i.due}
-                      onChange={(e) => setI({ ...i, due: e.target.value })}
+                    <span>Notes & payment terms</span>
+                    <textarea
+                      rows={4}
+                      value={i.notes}
+                      onChange={(e) => setI({ ...i, notes: e.target.value })}
                     />
                   </label>
+                </fieldset>
+                <div className="invoice-balance">
+                  <span>Balance due</span>
+                  <strong>{money(balance(s, i))}</strong>
+                  <p>
+                    {money(paid(s, i.id))} collected of {money(total)}
+                  </p>
                 </div>
-                <LineEditor
-                  items={i.items}
-                  onChange={(items) => setI({ ...i, items })}
-                />
-                <label className="field">
-                  <span>Applicable tax (%)</span>
-                  <input
-                    type="number"
-                    min="0"
-                    value={i.tax}
-                    onChange={(e) =>
-                      setI({ ...i, tax: Number(e.target.value) })
-                    }
-                  />
-                </label>
-                <label className="field">
-                  <span>Notes & payment terms</span>
-                  <textarea
-                    rows={4}
-                    value={i.notes}
-                    onChange={(e) => setI({ ...i, notes: e.target.value })}
-                  />
-                </label>
-              </fieldset>
-              <div className="invoice-balance">
-                <span>Balance due</span>
-                <strong>{money(balance(s, i))}</strong>
-                <p>
-                  {money(paid(s, i.id))} collected of {money(total)}
-                </p>
-              </div>
-              {!draft && i.status !== "Voided" && (
-                <div className="padded">
-                  <Btn
-                    small
-                    disabled={paid(s, i.id) > 0}
-                    onClick={() =>
-                      confirm(
-                        "Void this invoice?",
-                        "The invoice will be excluded from receivables. Invoices with payments require a backend credit-note workflow and cannot be voided here.",
-                        () => {
-                          const n = { ...i, status: "Voided" };
-                          save("invoices", n, "Invoice voided");
-                          setI(n);
-                        },
-                      )
-                    }
-                  >
-                    Void invoice
-                  </Btn>
-                  <small className="block muted">
-                    Paid invoices require a credit note; this workflow is
-                    reserved for the backend phase.
-                  </small>
-                </div>
-              )}
-            </section>
+                {!draft && i.status !== "Voided" && (
+                  <div className="padded">
+                    <Btn
+                      small
+                      disabled={paid(s, i.id) > 0}
+                      onClick={() =>
+                        confirm(
+                          "Void this invoice?",
+                          "The invoice will be excluded from receivables. Invoices with payments require a backend credit-note workflow and cannot be voided here.",
+                          () => {
+                            const n = { ...i, status: "Voided" };
+                            save("invoices", n, "Invoice voided");
+                            setI(n);
+                          },
+                        )
+                      }
+                    >
+                      Void invoice
+                    </Btn>
+                    <small className="block muted">
+                      Paid invoices require a credit note; this workflow is
+                      reserved for the backend phase.
+                    </small>
+                  </div>
+                )}
+              </StudioScroll>
+            </StudioFrame>
             <section className="studio-preview">
               <div className="preview-toolbar">
                 <span>

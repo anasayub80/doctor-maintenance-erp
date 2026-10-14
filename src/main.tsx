@@ -14,6 +14,7 @@ import Shell from "./components/Shell";
 import CreateHost from "./components/CreateHost";
 import "./styles.css";
 import "./refinement.css";
+import "./layout-fixes.css";
 const Dashboard = lazy(() => import("./modules/Dashboard"));
 const Leads = lazy(() =>
   import("./modules/Relationships").then((m) => ({ default: m.Leads })),
